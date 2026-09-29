@@ -192,5 +192,15 @@
             btn.textContent = 'Track';
         }
     }
+
+    // Auto-search if query param present in URL
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const query = urlParams.get('query');
+        if (query) {
+            document.getElementById('trackQuery').value = query;
+            handleTrack(new Event('submit'));
+        }
+    });
 </script>
 @endpush

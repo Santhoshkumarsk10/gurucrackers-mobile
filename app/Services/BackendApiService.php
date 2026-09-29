@@ -11,7 +11,8 @@ class BackendApiService
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(env('BACKEND_API_URL', 'http://127.0.0.1:8000'), '/');
+        $defaultUrl = 'http://192.168.1.8:8000';
+        $this->baseUrl = rtrim(env('BACKEND_API_URL', $defaultUrl) ?: $defaultUrl, '/');
     }
 
     public function getBaseUrl(): string

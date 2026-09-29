@@ -21,7 +21,9 @@ class MobileAppController extends Controller
         $banners = $initData['banners'] ?? [];
         $categories = $catalogData['categories'] ?? [];
 
-        return view('mobile.catalog', compact('shop', 'banners', 'categories'));
+        $backendUrl = $api->getBaseUrl();
+
+        return view('mobile.catalog', compact('shop', 'banners', 'categories', 'backendUrl'));
     }
 
     /**
@@ -46,7 +48,9 @@ class MobileAppController extends Controller
         $invoiceUrl = $result['invoice_url'] ?? null;
         $downloadPdfUrl = $result['download_pdf_url'] ?? null;
 
-        return view('mobile.success', compact('order', 'shop', 'orderNumber', 'invoiceUrl', 'downloadPdfUrl'));
+        $backendUrl = $api->getBaseUrl();
+
+        return view('mobile.success', compact('order', 'shop', 'orderNumber', 'invoiceUrl', 'downloadPdfUrl', 'backendUrl'));
     }
 
     /**
@@ -61,7 +65,8 @@ class MobileAppController extends Controller
 
         $initData = $api->getInit();
         $shop = $initData['shop'] ?? [];
+        $backendUrl = $api->getBaseUrl();
 
-        return view('mobile.track', compact('shop'));
+        return view('mobile.track', compact('shop', 'backendUrl'));
     }
 }

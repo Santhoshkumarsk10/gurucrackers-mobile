@@ -57,10 +57,10 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+            background: linear-gradient(135deg, #b91c1c 0%, #881337 50%, #7f1d1d 100%);
             color: white;
-            padding: calc(var(--safe-top) + 8px) 16px 12px 16px;
-            box-shadow: 0 4px 20px rgba(185, 28, 28, 0.25);
+            padding: calc(var(--safe-top) + 6px) 14px 10px 14px;
+            box-shadow: 0 4px 20px rgba(185, 28, 28, 0.28);
         }
 
         .header-content {
@@ -76,30 +76,43 @@
         }
 
         .brand-icon {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #78350f;
+            color: #b91c1c;
             font-size: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.18);
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .brand-title {
-            font-size: 1.15rem;
+            font-size: 1.18rem;
             font-weight: 800;
             letter-spacing: -0.3px;
             line-height: 1.2;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.15);
         }
 
         .brand-subtitle {
             font-size: 0.72rem;
-            opacity: 0.85;
             color: #fef08a;
-            font-weight: 600;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 1px;
         }
 
         .header-actions {
@@ -109,24 +122,26 @@
         }
 
         .header-btn {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            font-size: 14px;
-            transition: all 0.2s;
+            font-size: 15px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .header-btn:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.90);
+            background: rgba(255, 255, 255, 0.35);
         }
 
         /* Bottom Navigation Bar */
@@ -136,14 +151,14 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid rgba(226, 232, 240, 0.9);
             display: flex;
             justify-content: space-around;
             padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 -6px 25px rgba(0, 0, 0, 0.08);
         }
 
         .nav-item {
@@ -151,18 +166,18 @@
             flex-direction: column;
             align-items: center;
             text-decoration: none;
-            color: var(--text-muted);
+            color: #64748b;
             font-size: 0.72rem;
-            font-weight: 600;
-            gap: 4px;
+            font-weight: 700;
+            gap: 3px;
             position: relative;
-            padding: 4px 12px;
+            padding: 4px 14px;
             border-radius: 12px;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .nav-item i {
-            font-size: 18px;
+            font-size: 19px;
             transition: all 0.2s;
         }
 
@@ -171,37 +186,46 @@
         }
 
         .nav-item.active i {
-            transform: translateY(-2px);
+            transform: scale(1.15) translateY(-2px);
+            color: var(--primary);
         }
 
         .nav-badge {
             position: absolute;
-            top: 2px;
+            top: 0px;
             right: 8px;
-            background: var(--primary);
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
             color: white;
             font-size: 0.65rem;
             font-weight: 800;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 9px;
+            min-width: 19px;
+            height: 19px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 0 4px;
             border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
+            animation: pulseBadge 1.5s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         /* Container helper */
         .page-content {
             max-width: 600px;
             margin: 0 auto;
-            padding: 12px 14px;
+            padding: 10px 14px;
         }
 
         /* Tap active feedback */
         button, a, .clickable {
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
     </style>
 
@@ -226,8 +250,8 @@
             <i class="fa-solid fa-truck-fast"></i>
             <span>Track</span>
         </a>
-        <a href="https://wa.me/919789874381?text=Hi%20Guru%20Crackers,%20I%20have%20an%20inquiry" target="_blank" class="nav-item">
-            <i class="fa-brands fa-whatsapp text-success"></i>
+        <a href="https://wa.me/91{{ $shop['phone'] ?? '9789874381' }}?text=Hi%20Guru%20Crackers,%20I%20have%20an%20inquiry" target="_blank" class="nav-item">
+            <i class="fa-brands fa-whatsapp text-success" style="color: #22c55e;"></i>
             <span>WhatsApp</span>
         </a>
     </nav>
