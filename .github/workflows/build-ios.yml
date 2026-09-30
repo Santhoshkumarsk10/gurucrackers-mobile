@@ -1,0 +1,84 @@
+name: Build iOS App (.ipa)
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    name: Build Free iOS (.ipa)
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, curl, zip
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Select Latest Xcode Version
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_15.4.app || sudo xcode-select -switch /Applications/Xcode.app
+          xcodebuild -version
+
+      - name: Install Composer Dependencies
+        run: |
+          composer install --prefer-dist --no-interaction --optimize-autoloader
+
+      - name: Install NativePHP iOS Project
+        run: |
+          php artisan native:install ios --no-interaction
+
+      - name: Bundle Laravel App for iOS
+        run: |
+          # Run native:build to copy source and configure bundle
+          php artisan native:build --release --no-tty || true
+
+      - name: Compile iOS Archive with Xcode
+        run: |
+          cd nativephp/ios
+          
+          # Workspace or project resolution
+          TARGET_WORKSPACE="NativePHP.xcodeproj/project.xcworkspace"
+          if [ -d "NativePHP.xcworkspace" ]; then
+            TARGET_WORKSPACE="NativePHP.xcworkspace"
+          fi
+
+          echo "Building archive using workspace: $TARGET_WORKSPACE"
+
+          xcodebuild clean archive \
+            -workspace "$TARGET_WORKSPACE" \
+            -scheme NativePHP \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/NativePHP.xcarchive" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=YES \
+            DEVELOPMENT_TEAM=""
+
+      - name: Create .ipa Package
+        run: |
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -r "$RUNNER_TEMP/NativePHP.xcarchive/Products/Applications/"*.app "$RUNNER_TEMP/Payload/"
+          cd "$RUNNER_TEMP"
+          zip -r -q "GuruCrackers-iOS.ipa" Payload/
+          ls -lh GuruCrackers-iOS.ipa
+
+      - name: Upload .ipa Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GuruCrackers-iOS
+          path: ${{ runner.temp }}/GuruCrackers-iOS.ipa
+          retention-days: 30
