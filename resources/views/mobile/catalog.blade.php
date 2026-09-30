@@ -1876,6 +1876,59 @@
     .back-to-top-btn:active {
         transform: scale(0.92);
     }
+
+    /* ============================================================== */
+    /* PULL TO REFRESH & TOP REFRESH BAR STYLING                      */
+    /* ============================================================== */
+    .pull-to-refresh-indicator {
+        position: relative;
+        width: 100%;
+        height: 0;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: height 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 50;
+    }
+    .pull-to-refresh-indicator.visible {
+        opacity: 1;
+    }
+    .pull-to-refresh-indicator.refreshing {
+        height: 54px !important;
+        opacity: 1;
+    }
+    .ptr-inner {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        padding: 7px 16px;
+        border-radius: 24px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+        border: 1px solid #fee2e2;
+        margin-top: 4px;
+        margin-bottom: 4px;
+    }
+    .ptr-icon-wrap {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #fef2f2;
+        color: #dc2626;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        transition: transform 0.15s ease;
+    }
+    .ptr-msg {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #334155;
+    }
 </style>
 @endpush
 
@@ -1897,6 +1950,9 @@
                     </div>
                 </div>
                 <div class="header-actions">
+                    <button type="button" class="header-btn" id="refreshCatalogBtn" onclick="triggerManualRefresh()" title="Refresh Catalog" style="cursor: pointer; padding: 0;">
+                        <i class="fa-solid fa-rotate-right" id="refreshBtnIcon"></i>
+                    </button>
                     <a href="tel:{{ $shop['phone'] ?? '9789874381' }}" class="header-btn" title="Call Store">
                         <i class="fa-solid fa-phone"></i>
                     </a>
@@ -1906,6 +1962,16 @@
                 </div>
             </div>
         </header>
+
+        <!-- Pull-to-Refresh Indicator -->
+        <div id="pullToRefresh" class="pull-to-refresh-indicator">
+            <div class="ptr-inner">
+                <div class="ptr-icon-wrap" id="ptrIconWrap">
+                    <i class="fa-solid fa-arrow-down" id="ptrIcon"></i>
+                </div>
+                <span class="ptr-msg" id="ptrMsg">Pull down to refresh</span>
+            </div>
+        </div>
 
         <!-- Skeleton Loader Component (Smooth Initial Load Shimmer) -->
         <div id="catalogSkeleton" class="catalog-skeleton-wrap" style="display: none;">
@@ -4070,10 +4136,153 @@
         window.switchTab(hash, false);
     });
 
+    // =========================================================================
+    // PULL TO REFRESH & MANUAL CATALOG REFRESH ENGINE
+    // =========================================================================
+    let isRefreshingCatalog = false;
+
+    async function triggerManualRefresh() {
+        if (isRefreshingCatalog) return;
+        isRefreshingCatalog = true;
+
+        const btnIcon = document.getElementById('refreshBtnIcon');
+        if (btnIcon) btnIcon.classList.add('fa-spin');
+
+        const ptrEl = document.getElementById('pullToRefresh');
+        const ptrIcon = document.getElementById('ptrIcon');
+        const ptrIconWrap = document.getElementById('ptrIconWrap');
+        const ptrMsg = document.getElementById('ptrMsg');
+
+        if (ptrEl) {
+            ptrEl.classList.add('visible', 'refreshing');
+            ptrEl.style.height = '54px';
+            if (ptrIcon) ptrIcon.className = 'fa-solid fa-rotate-right fa-spin';
+            if (ptrIconWrap) ptrIconWrap.style.transform = 'none';
+            if (ptrMsg) ptrMsg.textContent = 'Refreshing catalog...';
+        }
+
+        try {
+            const apiBase = "{{ $backendUrl ?? 'https://gurucrackers.onrender.com' }}";
+            const res = await fetch(apiBase + '/api/v1/catalog?_t=' + Date.now(), {
+                headers: { 'Accept': 'application/json' },
+                cache: 'no-store'
+            });
+            const data = await res.json();
+
+            if (data.success && data.categories && data.categories.length > 0) {
+                renderCategoriesAndProducts(data.categories);
+                renderCartUI();
+                if (window.showToast) window.showToast('✨ Catalog refreshed successfully!', 'success', 2000);
+            } else {
+                window.location.reload();
+                return;
+            }
+        } catch (err) {
+            console.warn('Manual refresh error, reloading page:', err);
+            window.location.reload();
+            return;
+        } finally {
+            setTimeout(() => {
+                if (ptrEl) {
+                    ptrEl.style.height = '0px';
+                    ptrEl.classList.remove('refreshing', 'visible');
+                    setTimeout(() => {
+                        if (ptrIcon) ptrIcon.className = 'fa-solid fa-arrow-down';
+                        if (ptrMsg) ptrMsg.textContent = 'Pull down to refresh';
+                    }, 250);
+                }
+                if (btnIcon) btnIcon.classList.remove('fa-spin');
+                isRefreshingCatalog = false;
+            }, 500);
+        }
+    }
+
+    function initPullToRefresh() {
+        let touchStartY = 0;
+        let touchCurrentY = 0;
+        let isTrackingTouch = false;
+        let pullDistance = 0;
+        const maxPull = 85;
+        const triggerThreshold = 60;
+
+        const ptrEl = document.getElementById('pullToRefresh');
+        const ptrIcon = document.getElementById('ptrIcon');
+        const ptrIconWrap = document.getElementById('ptrIconWrap');
+        const ptrMsg = document.getElementById('ptrMsg');
+
+        window.addEventListener('touchstart', function(e) {
+            if (isRefreshingCatalog) return;
+            const catalogView = document.getElementById('view-catalog');
+            if (!catalogView || !catalogView.classList.contains('active')) return;
+
+            // Check if page is at the very top
+            const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+            if (scrollTop <= 1) {
+                touchStartY = e.touches[0].clientY;
+                isTrackingTouch = true;
+                pullDistance = 0;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', function(e) {
+            if (!isTrackingTouch || isRefreshingCatalog) return;
+
+            const scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+            if (scrollTop > 1) {
+                isTrackingTouch = false;
+                if (ptrEl && !ptrEl.classList.contains('refreshing')) {
+                    ptrEl.style.height = '0px';
+                    ptrEl.classList.remove('visible');
+                }
+                return;
+            }
+
+            touchCurrentY = e.touches[0].clientY;
+            const diffY = touchCurrentY - touchStartY;
+
+            if (diffY > 0) {
+                // Apply rubber-band drag resistance
+                pullDistance = Math.min(diffY * 0.45, maxPull);
+
+                if (ptrEl) {
+                    ptrEl.classList.add('visible');
+                    ptrEl.style.height = pullDistance + 'px';
+
+                    if (pullDistance >= triggerThreshold) {
+                        if (ptrIcon) ptrIcon.className = 'fa-solid fa-arrow-up';
+                        if (ptrIconWrap) ptrIconWrap.style.transform = 'rotate(180deg)';
+                        if (ptrMsg) ptrMsg.textContent = 'Release to refresh';
+                    } else {
+                        if (ptrIcon) ptrIcon.className = 'fa-solid fa-arrow-down';
+                        if (ptrIconWrap) ptrIconWrap.style.transform = 'rotate(' + (pullDistance * 2.5) + 'deg)';
+                        if (ptrMsg) ptrMsg.textContent = 'Pull down to refresh';
+                    }
+                }
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', function() {
+            if (!isTrackingTouch) return;
+            isTrackingTouch = false;
+
+            if (pullDistance >= triggerThreshold && !isRefreshingCatalog) {
+                triggerManualRefresh();
+            } else if (ptrEl && !isRefreshingCatalog) {
+                ptrEl.style.height = '0px';
+                ptrEl.classList.remove('visible');
+                if (ptrIcon) ptrIcon.className = 'fa-solid fa-arrow-down';
+                if (ptrIconWrap) ptrIconWrap.style.transform = 'none';
+                if (ptrMsg) ptrMsg.textContent = 'Pull down to refresh';
+            }
+            pullDistance = 0;
+        }, { passive: true });
+    }
+
     // Initialize UI on load
     document.addEventListener('DOMContentLoaded', () => {
         renderCartUI();
         checkAndLoadLiveCatalog();
+        initPullToRefresh();
 
         // Check if opened with #cart or #track hash
         const initialHash = window.location.hash.replace('#', '');

@@ -49,6 +49,7 @@
             min-height: 100vh;
             overflow-x: hidden;
             user-select: none;
+            overscroll-behavior-y: contain;
         }
 
         .tamil-text {
