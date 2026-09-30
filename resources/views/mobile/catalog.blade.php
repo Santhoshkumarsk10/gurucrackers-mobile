@@ -2904,8 +2904,21 @@
             input.removeAttribute('maxlength');
             tip.innerHTML = '<i class="fa-solid fa-circle-info"></i> Order ID is sent via SMS / WhatsApp confirmation.';
         }
+        clearTrackInput();
         input.focus();
     }
+
+    const defaultTrackPlaceholderHtml = `
+        <div id="trackPlaceholder" style="text-align: center; padding: 40px 20px; color: #94a3b8;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: #fef2f2; color: #dc2626; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px auto; font-size: 28px;">
+                <i class="fa-solid fa-truck-fast"></i>
+            </div>
+            <p style="font-weight: 800; color: #1e293b; font-size: 1rem;">Track Sivakasi Dispatch Status</p>
+            <p style="font-size: 0.82rem; color: #64748b; margin-top: 4px; max-width: 320px; margin-left: auto; margin-right: auto;">
+                Instant updates on packing, transport parcel booking, LR copy, and doorstep delivery.
+            </p>
+        </div>
+    `;
 
     const trackInputEl = document.getElementById('trackQuery');
     const trackClearBtn = document.getElementById('trackClearBtn');
@@ -2915,6 +2928,10 @@
                 trackClearBtn.style.display = 'flex';
             } else {
                 trackClearBtn.style.display = 'none';
+                const container = document.getElementById('trackResults');
+                if (container) {
+                    container.innerHTML = defaultTrackPlaceholderHtml;
+                }
             }
         });
     }
@@ -2922,7 +2939,11 @@
     function clearTrackInput() {
         if (trackInputEl) {
             trackInputEl.value = '';
-            trackClearBtn.style.display = 'none';
+            if (trackClearBtn) trackClearBtn.style.display = 'none';
+            const container = document.getElementById('trackResults');
+            if (container) {
+                container.innerHTML = defaultTrackPlaceholderHtml;
+            }
             trackInputEl.focus();
         }
     }
