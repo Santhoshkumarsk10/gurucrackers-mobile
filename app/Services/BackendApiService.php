@@ -11,8 +11,9 @@ class BackendApiService
 
     public function __construct()
     {
-        $defaultUrl = 'http://192.168.1.8:8000';
-        $this->baseUrl = rtrim(env('BACKEND_API_URL', $defaultUrl) ?: $defaultUrl, '/');
+        $defaultUrl = 'https://gurucrackers.onrender.com';
+        $configured = config('services.backend.url') ?: env('BACKEND_API_URL', $defaultUrl);
+        $this->baseUrl = rtrim($configured ?: $defaultUrl, '/');
     }
 
     public function getBaseUrl(): string
@@ -23,7 +24,7 @@ class BackendApiService
     public function getInit(): array
     {
         try {
-            $response = Http::timeout(6)->get("{$this->baseUrl}/api/v1/init");
+            $response = Http::withoutVerifying()->timeout(15)->get("{$this->baseUrl}/api/v1/init");
             if ($response->successful()) {
                 return $response->json();
             }
@@ -46,7 +47,7 @@ class BackendApiService
     public function getCatalog(): array
     {
         try {
-            $response = Http::timeout(10)->get("{$this->baseUrl}/api/v1/catalog");
+            $response = Http::withoutVerifying()->timeout(20)->get("{$this->baseUrl}/api/v1/catalog");
             if ($response->successful()) {
                 return $response->json();
             }
@@ -60,7 +61,7 @@ class BackendApiService
     public function submitOrder(array $data): array
     {
         try {
-            $response = Http::timeout(12)->post("{$this->baseUrl}/api/v1/orders", $data);
+            $response = Http::withoutVerifying()->timeout(25)->post("{$this->baseUrl}/api/v1/orders", $data);
             return $response->json();
         } catch (\Throwable $e) {
             Log::error("BackendApiService submitOrder failed: " . $e->getMessage());
@@ -74,7 +75,7 @@ class BackendApiService
     public function trackOrder(array $params): array
     {
         try {
-            $response = Http::timeout(8)->post("{$this->baseUrl}/api/v1/orders/track", $params);
+            $response = Http::withoutVerifying()->timeout(15)->post("{$this->baseUrl}/api/v1/orders/track", $params);
             return $response->json();
         } catch (\Throwable $e) {
             Log::error("BackendApiService trackOrder failed: " . $e->getMessage());
@@ -89,7 +90,7 @@ class BackendApiService
     public function getOrder(string $orderNumber): array
     {
         try {
-            $response = Http::timeout(8)->get("{$this->baseUrl}/api/v1/orders/{$orderNumber}");
+            $response = Http::withoutVerifying()->timeout(15)->get("{$this->baseUrl}/api/v1/orders/{$orderNumber}");
             return $response->json();
         } catch (\Throwable $e) {
             Log::error("BackendApiService getOrder failed: " . $e->getMessage());

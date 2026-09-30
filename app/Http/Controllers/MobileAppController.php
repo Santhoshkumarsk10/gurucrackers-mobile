@@ -31,6 +31,19 @@ class MobileAppController extends Controller
      */
     public function submitOrder(Request $request, BackendApiService $api): JsonResponse
     {
+        $products = $request->input('products', []);
+        if (is_array($products)) {
+            foreach ($products as $p) {
+                $q = is_array($p) ? ($p['qty'] ?? 0) : $p;
+                if ((int)$q > 20) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Maximum quantity allowed is 20 units per item.',
+                    ], 422);
+                }
+            }
+        }
+
         $result = $api->submitOrder($request->all());
 
         $status = ($result['success'] ?? false) ? 200 : 422;
@@ -63,10 +76,6 @@ class MobileAppController extends Controller
             return response()->json($data);
         }
 
-        $initData = $api->getInit();
-        $shop = $initData['shop'] ?? [];
-        $backendUrl = $api->getBaseUrl();
-
-        return view('mobile.track', compact('shop', 'backendUrl'));
+        return redirect('/#track');
     }
 }

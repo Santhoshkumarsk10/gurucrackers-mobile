@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'backend' => [
+        'url' => env('BACKEND_API_URL', 'https://gurucrackers.onrender.com'),
+    ],
+
 ];

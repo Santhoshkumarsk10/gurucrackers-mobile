@@ -21,12 +21,7 @@ BACKEND_API_URL="https://gurucrackers.onrender.com"
 Run this single command inside `gurucrackers-mobile`:
 
 ```bash
-php artisan native:package android \
-  --keystore=credentials/android.keystore \
-  --keystore-password=gurucrackers123 \
-  --key-alias=gurucrackers \
-  --key-password=gurucrackers123 \
-  --no-tty --no-interaction
+php artisan native:package android --keystore=credentials/android.keystore --keystore-password=gurucrackers123 --key-alias=gurucrackers --key-password=gurucrackers123
 ```
 
 ---
