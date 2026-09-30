@@ -1024,6 +1024,425 @@
     .btn-action-whatsapp { background: #22c55e; color: white; }
 
     /* ============================================================== */
+    /* IN-APP INVOICE MODAL & FAST DOWNLOAD STYLING                   */
+    /* ============================================================== */
+    .invoice-modal-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100005;
+        background: rgba(15, 23, 42, 0.78);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        display: none;
+        align-items: flex-end;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+    }
+    .invoice-modal-overlay.active {
+        display: flex;
+        opacity: 1;
+    }
+    .invoice-modal-container {
+        width: 100%;
+        max-width: 600px;
+        height: 94vh;
+        max-height: 94vh;
+        background: #f8fafc;
+        border-radius: 24px 24px 0 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.35);
+        transform: translateY(100%);
+        transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .invoice-modal-overlay.active .invoice-modal-container {
+        transform: translateY(0);
+    }
+    .invoice-modal-header {
+        padding: 12px 16px;
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        flex-shrink: 0;
+    }
+    .invoice-modal-back-btn,
+    .invoice-header-action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: #f1f5f9;
+        color: #1e293b;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+    }
+    .invoice-modal-back-btn:active,
+    .invoice-header-action-btn:active {
+        background: #e2e8f0;
+        transform: scale(0.94);
+    }
+    .invoice-modal-title-wrap {
+        flex: 1;
+        text-align: center;
+    }
+    .invoice-modal-title-wrap h3 {
+        font-size: 0.96rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin: 0;
+        line-height: 1.2;
+    }
+    .invoice-modal-title-wrap span {
+        font-size: 0.70rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+    .invoice-modal-header-actions {
+        display: flex;
+        gap: 6px;
+    }
+    .invoice-modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 10px 16px 10px;
+        -webkit-overflow-scrolling: touch;
+        background: #f1f5f9;
+    }
+    .invoice-modal-footer {
+        padding: 10px 14px;
+        background: #ffffff;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 8px));
+    }
+    .invoice-footer-btn {
+        flex: 1;
+        padding: 11px 12px;
+        border-radius: 12px;
+        font-size: 0.84rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: transform 0.15s, opacity 0.2s;
+    }
+    .invoice-footer-btn:active {
+        transform: scale(0.97);
+    }
+    .invoice-btn-download {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        flex: 1.6;
+    }
+    .invoice-btn-whatsapp {
+        background: #22c55e;
+        color: #ffffff;
+        flex: 1.1;
+    }
+    .invoice-btn-close {
+        background: #f1f5f9;
+        color: #475569;
+        flex: 0.8;
+    }
+
+    /* Professional A4 Paper Sheet Styling for Invoice */
+    .invoice-sheet {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+        padding: 18px 16px;
+        margin: 0 auto;
+        color: #1e293b;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .inv-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #dc2626;
+        margin-bottom: 12px;
+    }
+    .inv-brand-left {
+        flex: 1;
+    }
+    .inv-brand-title {
+        font-size: 1.2rem;
+        font-weight: 900;
+        color: #dc2626;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .inv-brand-tagline {
+        font-size: 0.66rem;
+        font-weight: 700;
+        color: #d97706;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        margin-top: 1px;
+    }
+    .inv-brand-meta {
+        font-size: 0.70rem;
+        color: #64748b;
+        line-height: 1.35;
+        margin-top: 4px;
+    }
+    .inv-badge-wrap {
+        text-align: right;
+    }
+    .inv-doc-type {
+        font-size: 0.88rem;
+        font-weight: 900;
+        color: #0f172a;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+    .inv-status-chip {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 0.66rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+    .inv-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+        background: #f8fafc;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #f1f5f9;
+    }
+    .inv-box-title {
+        font-size: 0.68rem;
+        font-weight: 800;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
+    }
+    .inv-box-name {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+    .inv-box-detail {
+        font-size: 0.74rem;
+        color: #475569;
+        line-height: 1.4;
+        margin-top: 2px;
+    }
+
+    /* Transport Card in Invoice */
+    .inv-transport-box {
+        background: #faf5ff;
+        border: 1px solid #e9d5ff;
+        border-radius: 10px;
+        padding: 8px 12px;
+        margin-bottom: 12px;
+        font-size: 0.74rem;
+        color: #581c87;
+    }
+    .inv-transport-title {
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 3px;
+        color: #6b21a8;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+    }
+
+    /* Items Table */
+    .inv-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 12px;
+        font-size: 0.76rem;
+    }
+    .inv-table th {
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 800;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 8px 6px;
+        text-align: left;
+        border-bottom: 1.5px solid #cbd5e1;
+    }
+    .inv-table th:last-child,
+    .inv-table td:last-child {
+        text-align: right;
+    }
+    .inv-table th.text-center,
+    .inv-table td.text-center {
+        text-align: center;
+    }
+    .inv-table td {
+        padding: 7px 6px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+    .inv-table tr:last-child td {
+        border-bottom: none;
+    }
+    .inv-item-name {
+        font-weight: 700;
+        color: #0f172a;
+    }
+
+    /* Totals & Summary */
+    .inv-summary-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        padding-top: 10px;
+        border-top: 1.5px solid #e2e8f0;
+        margin-bottom: 12px;
+    }
+    .inv-words-box {
+        flex: 1;
+        background: #f8fafc;
+        border: 1px dashed #cbd5e1;
+        border-radius: 8px;
+        padding: 7px 9px;
+    }
+    .inv-words-title {
+        font-size: 0.64rem;
+        font-weight: 800;
+        color: #64748b;
+        text-transform: uppercase;
+    }
+    .inv-words-text {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 2px;
+        line-height: 1.3;
+    }
+    .inv-totals-box {
+        width: 160px;
+        flex-shrink: 0;
+        font-size: 0.76rem;
+    }
+    .inv-total-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 0;
+        color: #64748b;
+    }
+    .inv-total-row.grand-total {
+        margin-top: 5px;
+        padding-top: 5px;
+        border-top: 1.5px solid #dc2626;
+        font-size: 0.92rem;
+        font-weight: 900;
+        color: #dc2626;
+    }
+
+    /* Sign & Notes */
+    .inv-bottom-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding-top: 10px;
+        border-top: 1px dashed #e2e8f0;
+        margin-top: 8px;
+        gap: 8px;
+    }
+    .inv-terms {
+        font-size: 0.64rem;
+        color: #64748b;
+        line-height: 1.35;
+        max-width: 62%;
+    }
+    .inv-signature-box {
+        text-align: right;
+    }
+    .inv-sign-label {
+        font-size: 0.64rem;
+        color: #64748b;
+        margin-top: 24px;
+        font-weight: 700;
+    }
+    .inv-seal {
+        font-size: 0.70rem;
+        font-weight: 800;
+        color: #dc2626;
+        text-transform: uppercase;
+    }
+
+    /* Print media query */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+        #invoiceModal, #invoiceModal * {
+            visibility: visible;
+        }
+        #invoiceModal {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            background: white !important;
+            display: block !important;
+            opacity: 1 !important;
+            backdrop-filter: none !important;
+        }
+        .invoice-modal-container {
+            max-width: 100% !important;
+            height: auto !important;
+            max-height: none !important;
+            transform: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            background: white !important;
+        }
+        .invoice-modal-header,
+        .invoice-modal-footer {
+            display: none !important;
+        }
+        .invoice-modal-body {
+            padding: 0 !important;
+            background: white !important;
+            overflow: visible !important;
+        }
+        .invoice-sheet {
+            border: none !important;
+            box-shadow: none !important;
+            padding: 10px !important;
+            border-radius: 0 !important;
+        }
+    }
+
+    /* ============================================================== */
     /* WEB-APP MATCHING CHECKOUT & CART DESIGN (SCREENSHOT 2 REPLICA) */
     /* ============================================================== */
 
@@ -1969,6 +2388,54 @@
             </div>
         </div>
     </div><!-- End #view-track -->
+
+    <!-- ============================================================== -->
+    <!-- IN-APP INVOICE VIEW & FAST DOWNLOAD MODAL                      -->
+    <!-- ============================================================== -->
+    <div id="invoiceModal" class="invoice-modal-overlay" onclick="handleInvoiceOverlayClick(event)">
+        <div class="invoice-modal-container">
+            <!-- Modal Header Bar -->
+            <div class="invoice-modal-header">
+                <button type="button" class="invoice-modal-back-btn" onclick="closeInvoiceModal()" title="Back">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div class="invoice-modal-title-wrap">
+                    <h3 id="invoiceModalTitle">Order Invoice</h3>
+                    <span id="invoiceModalSub">Guru Crackers, Sivakasi</span>
+                </div>
+                <div class="invoice-modal-header-actions">
+                    <button type="button" class="invoice-header-action-btn" onclick="printInvoice()" title="Print / Save PDF">
+                        <i class="fa-solid fa-print"></i>
+                    </button>
+                    <button type="button" class="invoice-header-action-btn" onclick="closeInvoiceModal()" title="Close">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body: Printable Invoice Document Sheet -->
+            <div class="invoice-modal-body">
+                <div id="invoicePrintableArea" class="invoice-sheet">
+                    <!-- Populated dynamically by renderInvoiceContent(order) -->
+                </div>
+            </div>
+
+            <!-- Modal Footer Action Bar -->
+            <div class="invoice-modal-footer">
+                <button type="button" class="invoice-footer-btn invoice-btn-download" id="modalDownloadBtn" onclick="downloadCurrentInvoicePdf()">
+                    <i class="fa-solid fa-file-arrow-down"></i>
+                    <span id="modalDownloadBtnText">Download PDF</span>
+                </button>
+                <button type="button" class="invoice-footer-btn invoice-btn-whatsapp" id="modalWhatsAppBtn" onclick="shareCurrentInvoiceWhatsApp()">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>Share</span>
+                </button>
+                <button type="button" class="invoice-footer-btn invoice-btn-close" onclick="closeInvoiceModal()">
+                    <span>Close</span>
+                </button>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -2995,10 +3462,11 @@
             const data = await response.json();
 
             if (data.success && data.orders && data.orders.length > 0) {
+                currentTrackedOrders = data.orders;
                 let html = '';
                 const backendUrl = "{{ $backendUrl ?? 'https://gurucrackers.onrender.com' }}";
 
-                data.orders.forEach(order => {
+                data.orders.forEach((order, index) => {
                     const paymentStatus = (order.payment_status || '').toLowerCase();
                     const orderStatus = (order.status || 'pending').toLowerCase();
 
@@ -3124,9 +3592,6 @@
                         itemsHtml += `</div>`;
                     }
 
-                    // Direct public invoice routes
-                    const invoicePdfUrl = order.download_pdf_url || `${backendUrl}/order/invoice/${order.order_number}/download`;
-                    const invoiceViewUrl = order.invoice_url || `${backendUrl}/order/invoice/${order.order_number}`;
                     const waText = encodeURIComponent(`Hi Guru Crackers, regarding my order #${order.order_number}: `);
 
                     html += `
@@ -3195,14 +3660,14 @@
                             ${itemsHtml}
 
                             <div class="order-actions-bar">
-                                <a href="${invoicePdfUrl}" target="_blank" class="btn-action btn-action-primary" style="flex: 1.2;">
-                                    <i class="fa-solid fa-file-arrow-down"></i> Download Invoice
-                                </a>
-                                <a href="${invoiceViewUrl}" target="_blank" class="btn-action btn-action-outline">
-                                    <i class="fa-solid fa-file-lines"></i> View
-                                </a>
+                                <button type="button" onclick="openInvoiceModal(${index})" class="btn-action btn-action-primary" style="flex: 1.2;">
+                                    <i class="fa-solid fa-file-lines"></i> View Invoice
+                                </button>
+                                <button type="button" onclick="downloadOrderPdfByIndex(${index}, this)" class="btn-action btn-action-outline">
+                                    <i class="fa-solid fa-file-arrow-down"></i> Download
+                                </button>
                                 <a href="https://wa.me/91{{ $shop['phone'] ?? '9789874381' }}?text=${waText}" target="_blank" class="btn-action btn-action-whatsapp">
-                                    <i class="fa-brands fa-whatsapp"></i> WhatsApp Help
+                                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
                                 </a>
                             </div>
                         </div>
@@ -3239,8 +3704,365 @@
         }
     }
 
+    // =========================================================================
+    // IN-APP INVOICE VIEW & INSTANT CLIENT-SIDE PDF DOWNLOAD SYSTEM
+    // =========================================================================
+    let currentTrackedOrders = [];
+    let activeInvoiceOrder = null;
+
+    function numberToIndianWords(num) {
+        if (!num || isNaN(num)) return '';
+        const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+        const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        num = Math.round(Number(num));
+        if (num === 0) return 'Zero Rupees Only';
+
+        function inWords(n) {
+            if (n < 20) return a[n];
+            const digit = n % 10;
+            return b[Math.floor(n / 10)] + (digit ? ' ' + a[digit] : ' ');
+        }
+
+        let str = '';
+        const crore = Math.floor(num / 10000000);
+        num %= 10000000;
+        const lakh = Math.floor(num / 100000);
+        num %= 100000;
+        const thousand = Math.floor(num / 1000);
+        num %= 1000;
+        const hundred = Math.floor(num / 100);
+        num %= 100;
+
+        if (crore > 0) str += inWords(crore) + 'Crore ';
+        if (lakh > 0) str += inWords(lakh) + 'Lakh ';
+        if (thousand > 0) str += inWords(thousand) + 'Thousand ';
+        if (hundred > 0) str += inWords(hundred) + 'Hundred ';
+        if (num > 0) {
+            if (str !== '') str += 'and ';
+            str += inWords(num);
+        }
+
+        return 'Rupees ' + str.trim() + ' Only';
+    }
+
+    function renderInvoiceContent(order) {
+        if (!order) return '';
+        activeInvoiceOrder = order;
+
+        const paymentStatus = (order.payment_status || '').toLowerCase();
+        const orderStatus = (order.status || 'pending').toLowerCase();
+        const isPaid = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(paymentStatus) || ['paid', 'confirmed', 'dispatched', 'delivered'].includes(orderStatus);
+        const isDispatched = ['dispatched', 'shipped'].includes(paymentStatus) || ['dispatched', 'shipped'].includes(orderStatus) || !!order.lr_number || !!order.parcel_service_name;
+
+        let statusBadgeText = 'Order Placed';
+        let statusBadgeBg = '#fef3c7';
+        let statusBadgeColor = '#b45309';
+
+        if (isDispatched) {
+            statusBadgeText = 'Dispatched & In Transit';
+            statusBadgeBg = '#f3e8ff';
+            statusBadgeColor = '#7e22ce';
+        } else if (orderStatus === 'delivered' || paymentStatus === 'delivered') {
+            statusBadgeText = 'Delivered';
+            statusBadgeBg = '#dcfce7';
+            statusBadgeColor = '#15803d';
+        } else if (isPaid) {
+            statusBadgeText = 'Paid & Confirmed';
+            statusBadgeBg = '#dcfce7';
+            statusBadgeColor = '#15803d';
+        }
+
+        const customerName = order.name || order.customer_name || 'Valued Customer';
+        const rawPhone = order.phone1 || order.phone || order.customer_phone || '';
+        const customerPhone = rawPhone ? `+91 ${rawPhone}` : 'Registered Contact';
+        const deliveryCity = order.city || 'Tamil Nadu';
+        const deliveryAddress = order.delivery_address || `Transport Hub, ${order.destination_hub || deliveryCity}`;
+
+        // Item rows
+        let itemRows = '';
+        let subtotal = 0;
+        if (order.items && order.items.length > 0) {
+            order.items.forEach((it, idx) => {
+                const name = it.product_name || (it.product ? it.product.name : 'Cracker Item');
+                const qty = it.quantity || it.qty || 1;
+                const rate = Number(it.unit_price || it.rate || 0);
+                const total = Number(it.line_total || (qty * rate));
+                subtotal += total;
+
+                itemRows += `
+                    <tr>
+                        <td class="text-center" style="width: 28px; color: #64748b;">${idx + 1}</td>
+                        <td>
+                            <div class="inv-item-name">${name}</div>
+                        </td>
+                        <td class="text-center" style="font-weight: 700; width: 44px;">${qty}</td>
+                        <td style="text-align: right; width: 64px;">₹${rate.toFixed(2)}</td>
+                        <td style="text-align: right; font-weight: 800; width: 78px;">₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        const totalAmount = Number(order.total_amount || subtotal || 0);
+        const amountInWords = numberToIndianWords(totalAmount);
+
+        let transportSection = '';
+        if (order.parcel_service_name || order.lr_number || isDispatched) {
+            transportSection = `
+                <div class="inv-transport-box">
+                    <div class="inv-transport-title">
+                        <i class="fa-solid fa-truck-fast"></i> Transport & LR Parcel Booking
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;">
+                        <div><strong>Service:</strong> ${order.parcel_service_name || 'A1 / MSS Transport'}</div>
+                        ${order.lr_number ? `<div><strong>LR Slip No:</strong> <span style="font-family: monospace; font-weight: 900; color: #581c87;">${order.lr_number}</span></div>` : ''}
+                        ${order.dispatch_date ? `<div><strong>Date:</strong> ${order.dispatch_date}</div>` : ''}
+                        <div><strong>Delivery Hub:</strong> ${order.destination_hub || deliveryCity}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        return `
+            <div class="inv-header">
+                <div class="inv-brand-left">
+                    <div class="inv-brand-title">
+                        <i class="fa-solid fa-fire-flame-curved"></i> GURU CRACKERS
+                    </div>
+                    <div class="inv-brand-tagline">Sivakasi Standard Fireworks & Sparklers</div>
+                    <div class="inv-brand-meta">
+                        124, Sivakasi Main Road, Sivakasi - 626123<br>
+                        Phone: +91 {{ $shop['phone'] ?? '9789874381' }} | WhatsApp Support<br>
+                        Email: {{ $shop['email'] ?? 'gurucrackerssivakasi@gmail.com' }}
+                    </div>
+                </div>
+                <div class="inv-badge-wrap">
+                    <div class="inv-doc-type">Tax Invoice</div>
+                    <span class="inv-status-chip" style="background: ${statusBadgeBg}; color: ${statusBadgeColor};">
+                        ${statusBadgeText}
+                    </span>
+                </div>
+            </div>
+
+            <div class="inv-grid-2">
+                <div>
+                    <div class="inv-box-title">Billed & Shipped To:</div>
+                    <div class="inv-box-name">${customerName}</div>
+                    <div class="inv-box-detail">
+                        <i class="fa-solid fa-phone" style="font-size: 10px; color: #dc2626;"></i> ${customerPhone}<br>
+                        <i class="fa-solid fa-location-dot" style="font-size: 10px; color: #dc2626;"></i> ${deliveryAddress}<br>
+                        ${order.state || 'Tamil Nadu'} - ${order.pincode || ''}
+                    </div>
+                </div>
+                <div>
+                    <div class="inv-box-title">Invoice Details:</div>
+                    <div class="inv-box-detail">
+                        <strong>Invoice No:</strong> <span style="color: #dc2626; font-weight: 800;">#${order.order_number}</span><br>
+                        <strong>Order Date:</strong> ${order.created_at || 'Recent'}<br>
+                        <strong>Payment Mode:</strong> ${isPaid ? 'Paid Online / UPI (Verified)' : 'Pending Verification'}<br>
+                        <strong>Delivery Mode:</strong> Transport Hub Parcel
+                    </div>
+                </div>
+            </div>
+
+            ${transportSection}
+
+            <table class="inv-table">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th>Cracker Description</th>
+                        <th class="text-center">Qty</th>
+                        <th style="text-align: right;">Rate</th>
+                        <th style="text-align: right;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${itemRows}
+                </tbody>
+            </table>
+
+            <div class="inv-summary-wrap">
+                <div class="inv-words-box">
+                    <div class="inv-words-title">Amount in Words:</div>
+                    <div class="inv-words-text">${amountInWords}</div>
+                </div>
+                <div class="inv-totals-box">
+                    <div class="inv-total-row">
+                        <span>Items Total:</span>
+                        <span>₹${Number(subtotal || totalAmount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div class="inv-total-row">
+                        <span>Packing & Forwarding:</span>
+                        <span style="color: #16a34a; font-weight: 700;">FREE</span>
+                    </div>
+                    <div class="inv-total-row grand-total">
+                        <span>Grand Total:</span>
+                        <span>₹${Number(totalAmount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="inv-bottom-section">
+                <div class="inv-terms">
+                    <strong>Terms & Safety Notes:</strong><br>
+                    1. Burst crackers under adult supervision in open ground.<br>
+                    2. Keep parcel away from heat & fire; store in a dry place.<br>
+                    3. Collect transport parcel from nearest hub by showing this bill.<br>
+                    4. Computer generated bill for transport transit from Sivakasi.
+                </div>
+                <div class="inv-signature-box">
+                    <div class="inv-seal">GURU CRACKERS</div>
+                    <div class="inv-sign-label">Authorized Signatory</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function openInvoiceModal(index) {
+        const order = currentTrackedOrders[index];
+        if (!order) return;
+
+        const printableArea = document.getElementById('invoicePrintableArea');
+        if (!printableArea) return;
+
+        printableArea.innerHTML = renderInvoiceContent(order);
+
+        const titleEl = document.getElementById('invoiceModalTitle');
+        if (titleEl) titleEl.textContent = `Invoice #${order.order_number}`;
+
+        const modal = document.getElementById('invoiceModal');
+        if (modal) {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeInvoiceModal() {
+        const modal = document.getElementById('invoiceModal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function handleInvoiceOverlayClick(event) {
+        if (event.target && event.target.id === 'invoiceModal') {
+            closeInvoiceModal();
+        }
+    }
+
+    async function downloadOrderPdfByIndex(index, btn) {
+        const order = currentTrackedOrders[index];
+        if (!order) return;
+
+        // Render invoice content into the printable container first
+        const printableArea = document.getElementById('invoicePrintableArea');
+        if (printableArea) {
+            printableArea.innerHTML = renderInvoiceContent(order);
+        }
+
+        let origHtml = '';
+        if (btn) {
+            origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Downloading...';
+        }
+
+        try {
+            await executePdfDownload(order);
+        } catch (err) {
+            console.error('Download error:', err);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        }
+    }
+
+    async function downloadCurrentInvoicePdf() {
+        if (!activeInvoiceOrder) return;
+        const btn = document.getElementById('modalDownloadBtn');
+        const btnText = document.getElementById('modalDownloadBtnText');
+        let origText = 'Download PDF';
+
+        if (btnText) {
+            origText = btnText.textContent;
+            btnText.textContent = 'Generating PDF...';
+        }
+        if (btn) btn.disabled = true;
+
+        try {
+            await executePdfDownload(activeInvoiceOrder);
+        } catch (err) {
+            console.error('Download error:', err);
+        } finally {
+            if (btnText) btnText.textContent = origText;
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function executePdfDownload(order) {
+        const orderNum = order.order_number || 'GC-Invoice';
+        const printableArea = document.getElementById('invoicePrintableArea');
+
+        if (typeof html2pdf !== 'undefined' && printableArea) {
+            const opt = {
+                margin:       [6, 6, 6, 6],
+                filename:     `GuruCrackers_Invoice_${orderNum}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            if (window.showToast) window.showToast('⚡ Generating PDF instantly...', 'info', 1500);
+
+            try {
+                await html2pdf().set(opt).from(printableArea).save();
+                if (window.showToast) window.showToast('✅ Invoice downloaded successfully!', 'success');
+                return;
+            } catch (pdfErr) {
+                console.warn('html2pdf generation error, falling back to direct download:', pdfErr);
+            }
+        }
+
+        // Direct fallback if html2pdf is unavailable
+        const backendUrl = "{{ $backendUrl ?? 'https://gurucrackers.onrender.com' }}";
+        const fallbackUrl = order.download_pdf_url || `${backendUrl}/order/invoice/${orderNum}/download`;
+        const tempLink = document.createElement('a');
+        tempLink.href = fallbackUrl;
+        tempLink.target = '_blank';
+        tempLink.download = `GuruCrackers_Invoice_${orderNum}.pdf`;
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+        if (window.showToast) window.showToast('Invoice download started', 'success');
+    }
+
+    function shareCurrentInvoiceWhatsApp() {
+        if (!activeInvoiceOrder) return;
+        const o = activeInvoiceOrder;
+        const backendUrl = "{{ $backendUrl ?? 'https://gurucrackers.onrender.com' }}";
+        const invoiceUrl = o.invoice_url || `${backendUrl}/order/invoice/${o.order_number}`;
+        const msg = `🧾 *Guru Crackers Tax Invoice*\nOrder No: *#${o.order_number}*\nCustomer: ${o.name || o.customer_name || 'Customer'}\nTotal: *₹${Number(o.total_amount).toLocaleString('en-IN')}*\nStatus: ${o.payment_status || o.status || 'Booked'}\nView Bill: ${invoiceUrl}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function printInvoice() {
+        window.print();
+    }
+
     // Hash and PopState Listener for Instant Tab Navigation & Android Back Button
     window.addEventListener('popstate', function(e) {
+        // If invoice modal is open, back button closes it
+        const invoiceModal = document.getElementById('invoiceModal');
+        if (invoiceModal && invoiceModal.classList.contains('active')) {
+            closeInvoiceModal();
+            return;
+        }
+
         const hash = window.location.hash.replace('#', '') || 'catalog';
         window.switchTab(hash, false);
     });
@@ -3254,6 +4076,25 @@
         const initialHash = window.location.hash.replace('#', '');
         if (initialHash === 'cart' || initialHash === 'track') {
             window.switchTab(initialHash, false);
+        }
+
+        // Auto-handle query parameter from URL (e.g., ?query=GC-20260922-JLUGB)
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryParam = urlParams.get('query');
+        if (queryParam) {
+            window.switchTab('track', false);
+            const input = document.getElementById('trackQuery');
+            if (input) {
+                input.value = queryParam;
+                if (/^[0-9]{10}$/.test(queryParam)) {
+                    switchTrackTab('mobile');
+                } else {
+                    switchTrackTab('order');
+                }
+                const clearBtn = document.getElementById('trackClearBtn');
+                if (clearBtn) clearBtn.style.display = 'flex';
+                handleTrack();
+            }
         }
     });
 </script>
