@@ -15,14 +15,21 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Install PHP 8.3 via Homebrew
+      - name: Install PHP 8.3 & Composer
         timeout-minutes: 5
         run: |
           HOMEBREW_NO_AUTO_UPDATE=1 brew install php@8.3
           brew link --overwrite --force php@8.3
-          echo "$(brew --prefix php@8.3)/bin" >> $GITHUB_PATH
-          echo "$(brew --prefix php@8.3)/sbin" >> $GITHUB_PATH
+          BREW_PREFIX=$(brew --prefix)
+          echo "$BREW_PREFIX/opt/php@8.3/bin" >> $GITHUB_PATH
+          echo "$BREW_PREFIX/opt/php@8.3/sbin" >> $GITHUB_PATH
+          echo "$BREW_PREFIX/bin" >> $GITHUB_PATH
+          export PATH="$BREW_PREFIX/opt/php@8.3/bin:$BREW_PREFIX/bin:$PATH"
           php -v
+          
+          # Install Composer
+          curl -sS https://getcomposer.org/installer | php -- --install-dir="$BREW_PREFIX/bin" --filename=composer
+          chmod +x "$BREW_PREFIX/bin/composer"
           composer --version
 
       - name: Setup Node.js
@@ -52,16 +59,23 @@ jobs:
         run: |
           cd nativephp/ios
           
-          # Workspace or project resolution
-          TARGET_WORKSPACE="NativePHP.xcodeproj/project.xcworkspace"
-          if [ -d "NativePHP.xcworkspace" ]; then
-            TARGET_WORKSPACE="NativePHP.xcworkspace"
+          # Install CocoaPods if Podfile is present
+          if [ -f "Podfile" ]; then
+            pod install || true
           fi
 
-          echo "Building archive using workspace: $TARGET_WORKSPACE"
+          # Workspace or project resolution
+          BUILD_TARGET="-project NativePHP.xcodeproj"
+          if [ -d "NativePHP.xcworkspace" ]; then
+            BUILD_TARGET="-workspace NativePHP.xcworkspace"
+          elif [ -d "NativePHP.xcodeproj/project.xcworkspace" ]; then
+            BUILD_TARGET="-workspace NativePHP.xcodeproj/project.xcworkspace"
+          fi
+
+          echo "Building archive using: $BUILD_TARGET"
 
           xcodebuild clean archive \
-            -workspace "$TARGET_WORKSPACE" \
+            $BUILD_TARGET \
             -scheme NativePHP \
             -configuration Release \
             -destination 'generic/platform=iOS' \
