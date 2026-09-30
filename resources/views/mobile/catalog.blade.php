@@ -248,8 +248,16 @@
         object-fit: cover;
         transition: transform 0.25s ease;
     }
+    .prod-img-box img.prod-img-fallback {
+        object-fit: contain;
+        padding: 10px;
+        background: #fff8f8;
+    }
     .product-card:hover .prod-img-box img {
         transform: scale(1.04);
+    }
+    .product-card:hover .prod-img-box img.prod-img-fallback {
+        transform: scale(1.02);
     }
     .prod-discount-badge {
         position: absolute;
@@ -282,7 +290,7 @@
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        min-height: 32px;
+        /* min-height: 32px; */
     }
     .prod-tamil-title {
         font-size: 0.72rem;
@@ -2012,12 +2020,9 @@
                                             <span class="prod-discount-badge">{{ $discountPercent }}% OFF</span>
                                         @endif
                                         @if(!empty($prod['image_url']))
-                                            <img src="{{ $prod['image_url'] }}" alt="{{ $prod['name'] }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
-                                                <i class="fa-solid fa-fire text-danger" style="font-size: 26px; color: #dc2626;"></i>
-                                            </div>
+                                            <img src="{{ $prod['image_url'] }}" alt="{{ $prod['name'] }}" loading="lazy" class="prod-img" onerror="this.onerror=null; this.src='{{ asset('images/logo.png') }}'; this.classList.add('prod-img-fallback');">
                                         @else
-                                            <i class="fa-solid fa-fire text-danger" style="font-size: 26px; color: #dc2626;"></i>
+                                            <img src="{{ asset('images/logo.png') }}" alt="{{ $prod['name'] }}" loading="lazy" class="prod-img prod-img-fallback">
                                         @endif
                                     </div>
 
@@ -3254,12 +3259,10 @@
             `;
 
             cat.products.forEach(prod => {
+                const defaultLogoUrl = "{{ asset('images/logo.png') }}";
                 const imgTag = prod.image_url 
-                    ? `<img src="${prod.image_url}" alt="${prod.name}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                       <div style="display: none; align-items: center; justify-content: center; width: 100%; height: 100%;">
-                           <i class="fa-solid fa-fire text-danger" style="font-size: 26px; color: #dc2626;"></i>
-                       </div>` 
-                    : `<i class="fa-solid fa-fire text-danger" style="font-size: 26px; color: #dc2626;"></i>`;
+                    ? `<img src="${prod.image_url}" alt="${prod.name}" loading="lazy" class="prod-img" onerror="this.onerror=null; this.src='${defaultLogoUrl}'; this.classList.add('prod-img-fallback');">` 
+                    : `<img src="${defaultLogoUrl}" alt="${prod.name}" loading="lazy" class="prod-img prod-img-fallback">`;
 
                 const discountPercent = (prod.actual_rate && prod.actual_rate > prod.net_rate) 
                     ? Math.round(((prod.actual_rate - prod.net_rate) / prod.actual_rate) * 100) 
