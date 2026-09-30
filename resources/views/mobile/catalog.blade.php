@@ -3539,53 +3539,52 @@
                     const paymentStatus = (order.payment_status || '').toLowerCase();
                     const orderStatus = (order.status || 'pending').toLowerCase();
 
-                    // Resolve effective status from lifecycle: pending -> paid -> confirmed -> dispatched -> delivered
+                    // Resolve effective status strictly from orderStatus column
+                    // Status lifecycle: pending -> confirmed (when paid) -> packed -> dispatched
+                    // payment_status: only 'pending' or 'paid'
                     let status = orderStatus;
-                    if (['dispatched', 'shipped'].includes(paymentStatus) || ['dispatched', 'shipped'].includes(orderStatus) || order.lr_number || order.parcel_service_name) {
+                    if (orderStatus === 'dispatched' || order.lr_number || order.parcel_service_name) {
                         status = 'dispatched';
-                    } else if (['confirmed', 'processing'].includes(paymentStatus) || ['confirmed', 'processing'].includes(orderStatus)) {
+                    } else if (orderStatus === 'packed') {
+                        status = 'packed';
+                    } else if (orderStatus === 'confirmed') {
                         status = 'confirmed';
-                    } else if (['paid'].includes(paymentStatus) || ['paid'].includes(orderStatus)) {
-                        status = 'paid';
-                    } else if (['delivered'].includes(paymentStatus) || ['delivered'].includes(orderStatus)) {
-                        status = 'delivered';
-                    } else if (['cancelled'].includes(paymentStatus) || ['cancelled'].includes(orderStatus)) {
+                    } else if (orderStatus === 'cancelled') {
                         status = 'cancelled';
+                    } else {
+                        status = 'pending';
                     }
 
                     let statusLabel = 'Order Placed';
                     let statusClass = 'status-pending';
                     let statusIcon = 'fa-clock';
 
-                    if (status === 'paid') {
-                        statusLabel = 'Payment Verified';
+                    if (status === 'confirmed') {
+                        statusLabel = 'Paid & Confirmed';
                         statusClass = 'status-processing';
-                        statusIcon = 'fa-receipt';
-                    } else if (status === 'confirmed') {
+                        statusIcon = 'fa-circle-check';
+                    } else if (status === 'packed') {
                         statusLabel = 'Packed & Ready';
                         statusClass = 'status-processing';
-                        statusIcon = 'fa-box-open';
+                        statusIcon = 'fa-boxes-packing';
                     } else if (status === 'dispatched') {
                         const parcelLabel = order.parcel_service_name ? ` (${order.parcel_service_name})` : '';
                         statusLabel = `Dispatched${parcelLabel}`;
                         statusClass = 'status-dispatched';
                         statusIcon = 'fa-truck-fast';
-                    } else if (status === 'delivered') {
-                        statusLabel = 'Delivered';
-                        statusClass = 'status-delivered';
-                        statusIcon = 'fa-circle-check';
                     } else if (status === 'cancelled') {
                         statusLabel = 'Cancelled';
                         statusClass = 'status-cancelled';
                         statusIcon = 'fa-ban';
                     }
 
-                    const step1 = true;
-                    const step2 = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(status);
-                    const step3 = ['dispatched', 'delivered'].includes(status);
-                    const step4 = status === 'delivered';
+                    // 4-step stepper: Placed -> Confirmed -> Packed -> Dispatched (no Delivered)
+                    const step1 = true; // always: order is placed
+                    const step2 = ['confirmed', 'packed', 'dispatched'].includes(status); // Paid & Confirmed
+                    const step3 = ['packed', 'dispatched'].includes(status); // Packed
+                    const step4 = status === 'dispatched'; // Dispatched
 
-                    const isPaid = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(paymentStatus) || ['paid', 'confirmed', 'dispatched', 'delivered'].includes(orderStatus);
+                    const isPaid = paymentStatus === 'paid';
                     const paymentBadgeHtml = isPaid
                         ? `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #dcfce7; color: #15803d; border-radius: 8px; font-weight: 700; font-size: 0.72rem;"><i class="fa-solid fa-check-double"></i> Paid & Verified</span>`
                         : `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #fef3c7; color: #b45309; border-radius: 8px; font-weight: 700; font-size: 0.72rem;"><i class="fa-solid fa-clock"></i> Payment Verification Pending</span>`;
@@ -3687,16 +3686,16 @@
                                         <div class="track-step-label">Placed</div>
                                     </div>
                                     <div class="track-step-node ${step2 ? (step3 ? 'completed' : 'active') : ''}">
-                                        <div class="track-step-circle"><i class="fa-solid ${step2 && !step3 ? 'fa-box-open' : 'fa-check'}"></i></div>
-                                        <div class="track-step-label">Packed</div>
+                                        <div class="track-step-circle"><i class="fa-solid ${step2 && !step3 ? 'fa-indian-rupee-sign' : 'fa-check'}"></i></div>
+                                        <div class="track-step-label">Confirmed</div>
                                     </div>
                                     <div class="track-step-node ${step3 ? (step4 ? 'completed' : 'active') : ''}">
-                                        <div class="track-step-circle"><i class="fa-solid ${step3 && !step4 ? 'fa-truck-fast' : 'fa-check'}"></i></div>
-                                        <div class="track-step-label">Dispatched</div>
+                                        <div class="track-step-circle"><i class="fa-solid ${step3 && !step4 ? 'fa-boxes-packing' : 'fa-check'}"></i></div>
+                                        <div class="track-step-label">Packed</div>
                                     </div>
                                     <div class="track-step-node ${step4 ? 'completed active' : ''}">
-                                        <div class="track-step-circle"><i class="fa-solid fa-house-chimney"></i></div>
-                                        <div class="track-step-label">Delivered</div>
+                                        <div class="track-step-circle"><i class="fa-solid fa-truck-fast"></i></div>
+                                        <div class="track-step-label">Dispatched</div>
                                     </div>
                                 </div>
                             </div>
@@ -3821,8 +3820,8 @@
 
         const paymentStatus = (order.payment_status || '').toLowerCase();
         const orderStatus = (order.status || 'pending').toLowerCase();
-        const isPaid = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(paymentStatus) || ['paid', 'confirmed', 'dispatched', 'delivered'].includes(orderStatus);
-        const isDispatched = ['dispatched', 'shipped'].includes(paymentStatus) || ['dispatched', 'shipped'].includes(orderStatus) || !!order.lr_number || !!order.parcel_service_name;
+        const isPaid = paymentStatus === 'paid';
+        const isDispatched = orderStatus === 'dispatched' || !!order.lr_number || !!order.parcel_service_name;
 
         let statusBadgeText = 'Order Placed';
         let statusBadgeBg = '#fef3c7';
@@ -3832,11 +3831,11 @@
             statusBadgeText = 'Dispatched & In Transit';
             statusBadgeBg = '#f3e8ff';
             statusBadgeColor = '#7e22ce';
-        } else if (orderStatus === 'delivered' || paymentStatus === 'delivered') {
-            statusBadgeText = 'Delivered';
-            statusBadgeBg = '#dcfce7';
-            statusBadgeColor = '#15803d';
-        } else if (isPaid) {
+        } else if (orderStatus === 'packed') {
+            statusBadgeText = 'Packed & Ready';
+            statusBadgeBg = '#f3e8ff';
+            statusBadgeColor = '#7e22ce';
+        } else if (orderStatus === 'confirmed') {
             statusBadgeText = 'Paid & Confirmed';
             statusBadgeBg = '#dcfce7';
             statusBadgeColor = '#15803d';
