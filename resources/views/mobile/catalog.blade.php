@@ -493,7 +493,13 @@
         display: none;
         opacity: 0;
         transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        padding-bottom: calc(75px + var(--safe-bottom));
+        padding-bottom: calc(90px + var(--safe-bottom));
+    }
+    #view-track {
+        padding-bottom: calc(140px + var(--safe-bottom)) !important;
+    }
+    #trackResults {
+        padding-bottom: 40px;
     }
     .app-view.active {
         display: block;
@@ -2972,19 +2978,40 @@
                 const backendUrl = "{{ $backendUrl ?? 'https://gurucrackers.onrender.com' }}";
 
                 data.orders.forEach(order => {
-                    const status = (order.status || 'pending').toLowerCase();
-                    let statusLabel = 'Placed';
+                    const paymentStatus = (order.payment_status || '').toLowerCase();
+                    const orderStatus = (order.status || 'pending').toLowerCase();
+
+                    // Resolve effective status from lifecycle: pending -> paid -> confirmed -> dispatched -> delivered
+                    let status = orderStatus;
+                    if (['dispatched', 'shipped'].includes(paymentStatus) || ['dispatched', 'shipped'].includes(orderStatus) || order.lr_number || order.parcel_service_name) {
+                        status = 'dispatched';
+                    } else if (['confirmed', 'processing'].includes(paymentStatus) || ['confirmed', 'processing'].includes(orderStatus)) {
+                        status = 'confirmed';
+                    } else if (['paid'].includes(paymentStatus) || ['paid'].includes(orderStatus)) {
+                        status = 'paid';
+                    } else if (['delivered'].includes(paymentStatus) || ['delivered'].includes(orderStatus)) {
+                        status = 'delivered';
+                    } else if (['cancelled'].includes(paymentStatus) || ['cancelled'].includes(orderStatus)) {
+                        status = 'cancelled';
+                    }
+
+                    let statusLabel = 'Order Placed';
                     let statusClass = 'status-pending';
                     let statusIcon = 'fa-clock';
 
-                    if (status === 'processing' || status === 'confirmed') {
-                        statusLabel = 'Packing in Progress';
+                    if (status === 'paid') {
+                        statusLabel = 'Payment Verified';
+                        statusClass = 'status-processing';
+                        statusIcon = 'fa-receipt';
+                    } else if (status === 'confirmed') {
+                        statusLabel = 'Packed & Ready';
                         statusClass = 'status-processing';
                         statusIcon = 'fa-box-open';
-                    } else if (status === 'dispatched' || status === 'shipped') {
-                        statusLabel = 'Dispatched (In Transit)';
+                    } else if (status === 'dispatched') {
+                        const parcelLabel = order.parcel_service_name ? ` (${order.parcel_service_name})` : '';
+                        statusLabel = `Dispatched${parcelLabel}`;
                         statusClass = 'status-dispatched';
-                        statusIcon = 'fa-truck-arrow-right';
+                        statusIcon = 'fa-truck-fast';
                     } else if (status === 'delivered') {
                         statusLabel = 'Delivered';
                         statusClass = 'status-delivered';
@@ -2993,19 +3020,64 @@
                         statusLabel = 'Cancelled';
                         statusClass = 'status-cancelled';
                         statusIcon = 'fa-ban';
-                    } else {
-                        statusLabel = 'Order Placed';
                     }
 
                     const step1 = true;
-                    const step2 = ['processing', 'confirmed', 'dispatched', 'shipped', 'delivered'].includes(status);
-                    const step3 = ['dispatched', 'shipped', 'delivered'].includes(status);
+                    const step2 = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(status);
+                    const step3 = ['dispatched', 'delivered'].includes(status);
                     const step4 = status === 'delivered';
 
-                    const isPaid = order.payment_status === 'paid';
+                    const isPaid = ['paid', 'confirmed', 'dispatched', 'delivered'].includes(paymentStatus) || ['paid', 'confirmed', 'dispatched', 'delivered'].includes(orderStatus);
                     const paymentBadgeHtml = isPaid
-                        ? `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #dcfce7; color: #15803d; border-radius: 8px; font-weight: 700; font-size: 0.72rem;"><i class="fa-solid fa-check"></i> Paid</span>`
+                        ? `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #dcfce7; color: #15803d; border-radius: 8px; font-weight: 700; font-size: 0.72rem;"><i class="fa-solid fa-check-double"></i> Paid & Verified</span>`
                         : `<span style="display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #fef3c7; color: #b45309; border-radius: 8px; font-weight: 700; font-size: 0.72rem;"><i class="fa-solid fa-clock"></i> Payment Verification Pending</span>`;
+
+                    const customerName = order.name || order.customer_name || 'Valued Customer';
+                    const rawPhone = order.phone1 || order.phone || order.customer_phone || '';
+                    const customerPhone = rawPhone ? `+91 ${rawPhone}` : 'Registered Contact';
+                    
+                    const hubName = order.destination_hub || order.city || 'Nearest Transport Hub';
+                    const deliveryDisplay = order.delivery_address 
+                        ? `${order.delivery_address}${order.city ? ', ' + order.city : ''}` 
+                        : `Transport Hub, ${hubName}`;
+
+                    // Transport & LR Details card
+                    let transportHtml = '';
+                    if (order.parcel_service_name || order.lr_number || status === 'dispatched') {
+                        transportHtml = `
+                            <div style="margin: 12px 14px; padding: 14px; background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%); border: 1.5px solid #d8b4fe; border-radius: 14px; box-shadow: 0 2px 10px rgba(126, 34, 206, 0.08);">
+                                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                    <span style="font-size: 0.76rem; font-weight: 800; color: #6b21a8; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid fa-truck-fast"></i> Parcel Booking & LR Details
+                                    </span>
+                                    <span style="font-size: 0.70rem; font-weight: 800; padding: 3px 8px; background: #7e22ce; color: white; border-radius: 6px;">
+                                        Dispatched & In Transit
+                                    </span>
+                                </div>
+                                <div style="font-size: 0.82rem; color: #1e1b4b; line-height: 1.5;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="color: #6b21a8; font-weight: 600;">Parcel Service:</span>
+                                        <span style="font-weight: 800;">${order.parcel_service_name || 'A1 / MSS Transport'}</span>
+                                    </div>
+                                    ${order.lr_number ? `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="color: #6b21a8; font-weight: 600;">LR Slip Number:</span>
+                                        <span style="font-family: monospace; font-size: 0.90rem; font-weight: 900; color: #581c87; letter-spacing: 0.5px;">${order.lr_number}</span>
+                                    </div>` : ''}
+                                    ${order.dispatch_date ? `
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="color: #6b21a8; font-weight: 600;">Dispatched Date:</span>
+                                        <span style="font-weight: 700;">${order.dispatch_date}</span>
+                                    </div>` : ''}
+                                    ${order.destination_hub ? `
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #6b21a8; font-weight: 600;">Delivery Hub:</span>
+                                        <span style="font-weight: 700;">${order.destination_hub}</span>
+                                    </div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
 
                     let itemsHtml = '';
                     if (order.items && order.items.length > 0) {
@@ -3031,7 +3103,9 @@
                         itemsHtml += `</div>`;
                     }
 
-                    const invoicePdfUrl = `${backendUrl}/orders/${order.order_number}/invoice/download`;
+                    // Direct public invoice routes
+                    const invoicePdfUrl = order.download_pdf_url || `${backendUrl}/order/invoice/${order.order_number}/download`;
+                    const invoiceViewUrl = order.invoice_url || `${backendUrl}/order/invoice/${order.order_number}`;
                     const waText = encodeURIComponent(`Hi Guru Crackers, regarding my order #${order.order_number}: `);
 
                     html += `
@@ -3072,18 +3146,20 @@
                                 </div>
                             </div>
 
+                            ${transportHtml}
+
                             <div class="track-details-grid">
                                 <div class="track-detail-row">
                                     <span class="track-detail-label">Customer:</span>
-                                    <span class="track-detail-value">${order.customer_name || 'Valued Customer'}</span>
+                                    <span class="track-detail-value">${customerName}</span>
                                 </div>
                                 <div class="track-detail-row">
                                     <span class="track-detail-label">Contact:</span>
-                                    <span class="track-detail-value">+91 ${order.customer_phone || ''}</span>
+                                    <span class="track-detail-value">${customerPhone}</span>
                                 </div>
                                 <div class="track-detail-row">
                                     <span class="track-detail-label">Delivery Hub:</span>
-                                    <span class="track-detail-value">${order.delivery_address || 'Transport Hub'}, ${order.city || ''}</span>
+                                    <span class="track-detail-value">${deliveryDisplay}</span>
                                 </div>
                                 <div class="track-detail-row">
                                     <span class="track-detail-label">Payment:</span>
@@ -3098,8 +3174,11 @@
                             ${itemsHtml}
 
                             <div class="order-actions-bar">
-                                <a href="${invoicePdfUrl}" target="_blank" class="btn-action btn-action-primary">
+                                <a href="${invoicePdfUrl}" target="_blank" class="btn-action btn-action-primary" style="flex: 1.2;">
                                     <i class="fa-solid fa-file-arrow-down"></i> Download Invoice
+                                </a>
+                                <a href="${invoiceViewUrl}" target="_blank" class="btn-action btn-action-outline">
+                                    <i class="fa-solid fa-file-lines"></i> View
                                 </a>
                                 <a href="https://wa.me/91{{ $shop['phone'] ?? '9789874381' }}?text=${waText}" target="_blank" class="btn-action btn-action-whatsapp">
                                     <i class="fa-brands fa-whatsapp"></i> WhatsApp Help
