@@ -8,23 +8,22 @@ on:
 jobs:
   build-ios:
     name: Build Free iOS (.ipa)
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 25
 
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      - name: Setup PHP 8.3
-        uses: shivammathur/setup-php@v2
+      - name: Install PHP 8.3 via Homebrew
         timeout-minutes: 5
-        with:
-          php-version: '8.3'
-          coverage: none
-          tools: composer:v2
-        env:
-          HOMEBREW_NO_AUTO_UPDATE: "1"
-          HOMEBREW_NO_INSTALL_CLEANUP: "1"
+        run: |
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install php@8.3
+          brew link --overwrite --force php@8.3
+          echo "$(brew --prefix php@8.3)/bin" >> $GITHUB_PATH
+          echo "$(brew --prefix php@8.3)/sbin" >> $GITHUB_PATH
+          php -v
+          composer --version
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,7 +32,7 @@ jobs:
 
       - name: Select Latest Xcode Version
         run: |
-          sudo xcode-select -switch /Applications/Xcode_15.4.app || sudo xcode-select -switch /Applications/Xcode.app
+          sudo xcode-select -switch /Applications/Xcode_16.4.app || sudo xcode-select -switch /Applications/Xcode.app
           xcodebuild -version
 
       - name: Install Composer Dependencies
