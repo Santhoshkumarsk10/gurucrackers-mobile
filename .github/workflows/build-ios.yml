@@ -9,6 +9,7 @@ jobs:
   build-ios:
     name: Build Free iOS (.ipa)
     runs-on: macos-14
+    timeout-minutes: 25
 
     steps:
       - name: Checkout Source Code
@@ -16,10 +17,14 @@ jobs:
 
       - name: Setup PHP 8.3
         uses: shivammathur/setup-php@v2
+        timeout-minutes: 5
         with:
           php-version: '8.3'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, curl, zip
           coverage: none
+          tools: composer:v2
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_NO_INSTALL_CLEANUP: "1"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
