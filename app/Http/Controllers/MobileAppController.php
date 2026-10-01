@@ -78,4 +78,33 @@ class MobileAppController extends Controller
 
         return redirect('/#track');
     }
+
+    /**
+     * Send WhatsApp OTP for Mobile App.
+     */
+    public function sendOtp(Request $request, BackendApiService $api): JsonResponse
+    {
+        $result = $api->sendOtp($request->all());
+        $status = ($result['success'] ?? false) ? 200 : (!empty($result['cooldown']) ? 429 : 422);
+        return response()->json($result, $status);
+    }
+
+    /**
+     * Verify WhatsApp OTP for Mobile App.
+     */
+    public function verifyOtp(Request $request, BackendApiService $api): JsonResponse
+    {
+        $result = $api->verifyOtp($request->all());
+        $status = ($result['success'] ?? false) ? 200 : 422;
+        return response()->json($result, $status);
+    }
+    /**
+     * Auto Pincode Lookup (Inside Tamil Nadu only).
+     */
+    public function lookupPincode(string $pincode, BackendApiService $api): JsonResponse
+    {
+        $result = $api->lookupPincode($pincode);
+        $status = ($result["success"] ?? false) ? 200 : 422;
+        return response()->json($result, $status);
+    }
 }

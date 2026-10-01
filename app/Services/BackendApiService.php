@@ -97,4 +97,45 @@ class BackendApiService
             return ['success' => false, 'message' => 'Failed to load order.'];
         }
     }
+
+    public function sendOtp(array $data): array
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(20)->post("{$this->baseUrl}/api/v1/orders/send-otp", $data);
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error("BackendApiService sendOtp failed: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Network error connecting to store server. Please check your internet connection.',
+            ];
+        }
+    }
+
+    public function verifyOtp(array $data): array
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(20)->post("{$this->baseUrl}/api/v1/orders/verify-otp", $data);
+            return $response->json();
+        } catch (\Throwable $e) {
+            Log::error("BackendApiService verifyOtp failed: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Network error connecting to store server. Please check your internet connection.',
+            ];
+        }
+    }
+    public function lookupPincode(string $pincode): array
+    {
+        try {
+            $response = Http::withoutVerifying()->timeout(10)->get("{$this->baseUrl}/api/v1/orders/pincode/{$pincode}");
+            return $response->json() ?? ['success' => false, 'message' => 'Invalid server response'];
+        } catch (\Throwable $e) {
+            Log::error("BackendApiService lookupPincode failed: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Network error connecting to store server.',
+            ];
+        }
+    }
 }

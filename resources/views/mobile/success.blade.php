@@ -156,8 +156,19 @@
                     <span style="font-weight: 700; color: #1e293b;">{{ $order['city'] ?? '' }}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px dashed #e2e8f0;">
-                    <span style="color: #64748b; font-weight: 700;">Payable Amount:</span>
+                    <span style="color: #64748b; font-weight: 700;">Order Amount:</span>
                     <span style="font-weight: 800; color: #16a34a; font-size: 1.15rem;">₹{{ number_format($order['total_amount'] ?? 0, 0) }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-top: 4px; font-size: 0.78rem;">
+                    <span style="color: #64748b; font-weight: 600;">Delivery Charges:</span>
+                    @if(isset($order['delivery_charges']) && $order['delivery_charges'] !== null && $order['delivery_charges'] > 0)
+                        <span style="font-weight: 800; color: #d97706;">₹{{ number_format($order['delivery_charges'], 2) }}</span>
+                    @else
+                        <span style="font-weight: 700; color: #d97706;">To Pay at Delivery (Extra)</span>
+                    @endif
+                </div>
+                <div style="font-size: 0.70rem; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 6px 8px; margin-top: 8px;">
+                    <i class="fa-solid fa-truck-fast"></i> <strong>Without Delivery Charges:</strong> டெலிவரி கட்டணம் பார்சல் அலுவலகத்தில் பெற்றுக்கொள்ளும்போது செலுத்த வேண்டும்.
                 </div>
             </div>
         @endif
